@@ -1,11 +1,11 @@
 #include <bits/stdc++.h>
-#define DEBUG false
+#define DEBUG true
 #define int long long
 #define inf 0x3f3f3f3f3f3f3f3f
 #define endl '\n'
 using namespace std;
-
-
+int S, P;
+vector<pair<int,int>> coords;
 struct DSU {
 	vector<int> e;
 	DSU(int N) { e = vector<int>(N, -1); }
@@ -26,6 +26,27 @@ struct DSU {
 		return true;
 	}
 };
+bool verify(){
+    return true;
+
+}
+
+int first_true(int lo, int hi, function<bool(int)> f) {
+	hi++;
+	while (lo < hi) {
+		int mid = lo + (hi - lo) / 2;
+		if (f(mid)) {
+			hi = mid;
+		} else {
+			lo = mid + 1;
+		}
+	}
+	return lo;
+}
+void solve(){
+    first_true(0,29,verify);
+}
+
 
 signed main() {
     if(!DEBUG){
@@ -35,5 +56,11 @@ signed main() {
         (void)freopen("test.in", "r", stdin);
         (void)freopen("test.out", "w", stdout); 
     }
-}
+    cin>>S>>P;
+    coords.assign(P,pair<int,int>());
+    for(int i = 0; i<P; ++i){
+        cin>>coords[i].first>>coords[i].second;
+    }
+    solve();
 
+}

@@ -1,9 +1,10 @@
 #include <bits/stdc++.h>
-#define DEBUG false
+#define DEBUG true
 #define int long long
 #define inf 0x3f3f3f3f3f3f3f3f
 #define endl '\n'
 using namespace std;
+
 
 signed main() {
     if(!DEBUG){
