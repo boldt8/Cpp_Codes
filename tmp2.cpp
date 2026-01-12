@@ -1,28 +1,26 @@
 #include <bits/stdc++.h>
-#define DEBUG false
-#define int long long
-#define inf 0x3f3f3f3f3f3f3f3f
-#define endl '\n'
 using namespace std;
+
+using ll = long long;
 
 struct Edge {
     int to;
-    int z;
+    ll z;
 };
 
-int T;
+// Globals to keep the DFS header simple
 static vector<vector<Edge>> adj;
 static vector<char> vis;
-static vector<int> sgn;     
-static vector<int> off;      
+static vector<int> sgn;     // +1 or -1
+static vector<ll> off;      // c_i
 static bool ok;
 
-void dfs(int u, vector<int>& comp, bool& hasT,int& tFixed) {
+void dfs(int u, vector<int>& comp, bool& hasT, ll& tFixed) {
     comp.push_back(u);
 
     for (const auto& e : adj[u]) {
         int v = e.to;
-       int z = e.z;
+        ll z = e.z;
 
         if (!vis[v]) {
             vis[v] = 1;
@@ -31,21 +29,23 @@ void dfs(int u, vector<int>& comp, bool& hasT,int& tFixed) {
             dfs(v, comp, hasT, tFixed);
             if (!ok) return;
         } else {
-            int sumS = sgn[u] + sgn[v]; 
-           int sumC = off[u] + off[v];
+            int sumS = sgn[u] + sgn[v]; // 0, +2, -2
+            ll sumC = off[u] + off[v];
 
             if (sumS == 0) {
+                // t cancels out, must match exactly
                 if (sumC != z) {
                     ok = false;
                     return;
                 }
             } else {
-               int num = z - sumC;
+                // pins t: (sumS)*t + sumC = z
+                ll num = z - sumC;
                 if (num % sumS != 0) {
                     ok = false;
                     return;
                 }
-               int cand = num / sumS;
+                ll cand = num / sumS;
                 if (!hasT) {
                     hasT = true;
                     tFixed = cand;
@@ -58,18 +58,25 @@ void dfs(int u, vector<int>& comp, bool& hasT,int& tFixed) {
     }
 }
 
-void solve(){
-    int N, M;
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int T;
+    cin >> T;
+
+    while (T--) {
+        int N, M;
         cin >> N >> M;
 
-        vector<int> L(N), R(N);
+        vector<ll> L(N), R(N);
         for (int i = 0; i < N; i++) cin >> L[i];
         for (int i = 0; i < N; i++) cin >> R[i];
 
         adj.assign(N, {});
         for (int i = 0; i < M; i++) {
             int x, y;
-            int z;
+            ll z;
             cin >> x >> y >> z;
             --x; --y;
             adj[x].push_back({y, z});
@@ -88,7 +95,7 @@ void solve(){
 
             vector<int> comp;
             bool hasT = false;
-            int tFixed = 0;
+            ll tFixed = 0;
 
             vis[start] = 1;
             sgn[start] = +1;
@@ -100,14 +107,14 @@ void solve(){
             if (hasT) {
                 int cnt = 0;
                 for (int v : comp) {
-                    int val = (int)sgn[v] * tFixed + off[v];
+                    ll val = (ll)sgn[v] * tFixed + off[v];
                     if (L[v] <= val && val <= R[v]) cnt++;
                 }
                 totalBest += cnt;
             } else {
-                vector<pair<int,int>> events;
+                vector<pair<ll,int>> events;
                 for (int v : comp) {
-                    int a, b;
+                    ll a, b;
                     if (sgn[v] == +1) {
                         a = L[v] - off[v];
                         b = R[v] - off[v];
@@ -115,7 +122,7 @@ void solve(){
                         a = off[v] - R[v];
                         b = off[v] - L[v];
                     }
-                    
+                    // interval [a,b] contributes +1 at a, and -1 at (b+1)
                     events.push_back({a, +1});
                     events.push_back({b + 1, -1});
                 }
@@ -123,11 +130,10 @@ void solve(){
                 sort(events.begin(), events.end());
 
                 int cur = 0, best = 0;
-                int E = (int)events.size();
-                for (int i = 0; i < E; i++) {
-                    int x = events[i].first;
+                for (int i = 0; i < (int)events.size();) {
+                    ll x = events[i].first;
                     int delta = 0;
-                    while (i < E && events[i].first == x) {
+                    while (i < (int)events.size() && events[i].first == x) {
                         delta += events[i].second;
                         i++;
                     }
@@ -139,27 +145,9 @@ void solve(){
             }
         }
 
-        if (!ok){
-             cout << -1 << "\n";
-        }
-        else {
-            cout << totalBest << "\n";
-        }
+        if (!ok) cout << -1 << "\n";
+        else cout << totalBest << "\n";
+    }
+
+    return 0;
 }
-
-
-signed main() {
-    if(!DEBUG){
-        ios::sync_with_stdio(false); cin.tie(0); cout.tie(0);
-    }
-    else{
-        (void)freopen("test.in", "r", stdin);
-        (void)freopen("test.out", "w", stdout); 
-    }
-
-    cin>>T;
-    while(T--){
-        solve();
-    }
-}
-
